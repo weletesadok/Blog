@@ -1,5 +1,9 @@
-export default ()=>{
-  return (<>
-  <div className="text-red-700 ">Weletesadok</div>
-  </>)
-}
+export default (props)=>{
+  console.log("ethiopian")
+
+   return (
+    <>
+    Ethiopian airlines is noting for me
+    </>
+  )
+};

@@ -1,6 +1,5 @@
-import mongoose from 'mongoose';
-
-const postSchema =  mongoose.Schema({
+const mongoose = require('mongoose')
+const blogSchema =  mongoose.Schema({
     title:{
         type:String,
         required:true
@@ -25,13 +24,9 @@ const postSchema =  mongoose.Schema({
         type:Date,
         required:true
     },
-    imageURL:{
-        type:String,
-        required:true
-    },
-    cloudinary_id:{
-        type:String,
-        required:true
+    image: {
+        data: Buffer,
+        ContentType: String
     },
     user:{
         type:mongoose.Types.ObjectId,
@@ -40,6 +35,4 @@ const postSchema =  mongoose.Schema({
     }
 });
 
-const Post = new mongoose.model("Post",postSchema);
-
-export default Post;
+module.exports = new mongoose.model("Post",blogSchema);

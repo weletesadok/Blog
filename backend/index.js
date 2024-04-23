@@ -1,36 +1,45 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
+require('dotenv').config()
+require('express-async-errors')
+const express = require('express')
+const app = express()
+const path = require('path')
+const { logger, logEvents } = require('./middleware/logger')
+const errorHandler = require('./middleware/errorHandler')
+const cookieParser = require('cookie-parser')
+const cors = require('cors')
+const corsOptions = require('./config/corsOptions')
+const connectDB = require('./config/dbConn')
+const mongoose = require('mongoose')
+const verifyJWT = require("./middleware/verifyJWT");
 
-//components
-import connect from "./database/connect.js";
-import userRouter from "./routes/user-routes.js";
-import postRouter from "./routes/post-routes.js";
+const PORT = process.env.PORT || 3500
 
-//Initialization
-const app = express();
-dotenv.config();
-app.use(cors({
-  origin: '*', // Or specify a specific origin like 'http://example.com'
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
-}));
-app.use(express.json({ limit: '10mb' }));
+console.log(process.env.NODE_ENV)
 
-// Middleware to parse JSON data
-app.use(express.json());
+connectDB()
 
-//connection
-connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/BlogDB");
+app.use(logger)
 
-app.get("/", (req, res) => {
-  res.status(403).send("Forbidden");
-});
+app.use(cors(corsOptions))
 
-app.use("/api/user", userRouter);
-app.use("/api/post", postRouter);
+app.use(express.json())
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`[PASS] listening on port ${PORT}.`);
-});
+app.use(cookieParser())
+
+app.use('/', express.static(path.join(__dirname, 'public')))
+
+app.use('/auth', require('./routes/authRoutes'))
+app.use('/users', require('./routes/userRoutes'))
+app.use('/blog', require('./routes/blogRoutes'))
+
+app.use(errorHandler)
+
+mongoose.connection.once('open', () => {
+    console.log('Connected to MongoDB')
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+})
+
+mongoose.connection.on('error', err => {
+    console.log(err)
+    logEvents(`${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`, 'mongoErrLog.log')
+})
