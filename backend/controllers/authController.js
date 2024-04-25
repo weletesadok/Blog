@@ -1,14 +1,61 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const cloudinary = require('cloudinary').v2;
 
-// @desc Login
-// @route POST /auth
-// @access Public
+cloudinary.config({
+  cloud_name: 'dpuotea85',
+  api_key: '269375457246699',
+  api_secret: 'X9pIatqQEemSd33QDw9h3Q3m47I',
+  api_environment_variable: 'CLOUDINARY_URL=cloudinary://269375457246699:X9pIatqQEemSd33QDw9h3Q3m47I@dpuotea85'
+});
+
+
+const registerUser = async (req, res) => {
+  try {
+    const { firstName, lastName, email, phoneNumber, zipCode, username, password, roles } = req.body;
+
+    
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username or email already exists' });
+    }
+
+    
+    let avatarUrl;
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      avatarUrl = result.secure_url;
+    }
+
+    
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      zipCode,
+      username,
+      password,
+      roles,
+      avatar: avatarUrl 
+    });
+
+    
+    await newUser.save();
+
+    
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 const login = async (req, res) => {
-    const { username, password, email } = req.body
+    const { username, password } = req.body
 
-    if (!username || !password || !email) {
+    if (!username || !password) {
         return res.status(400).json({ message: 'All fields are required' })
     }
 
@@ -21,12 +68,12 @@ const login = async (req, res) => {
     const match = await bcrypt.compare(password, foundUser.password)
 
     if (!match) return res.status(401).json({ message: 'Unauthorized' })
-
     const accessToken = jwt.sign(
         {
             "UserInfo": {
+                "id": foundUser._id,
                 "username": foundUser.username,
-                "roles": foundUser.roles
+                "roles": foundUser.roles,
             }
         },
         process.env.ACCESS_TOKEN_SECRET,
@@ -39,21 +86,21 @@ const login = async (req, res) => {
         { expiresIn: '7d' }
     )
 
-    // Create secure cookie with refresh token 
+    
     res.cookie('jwt', refreshToken, {
-        httpOnly: true, //accessible only by web server 
-        secure: true, //https
-        sameSite: 'None', //cross-site cookie 
-        maxAge: 7 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
+        httpOnly: true, 
+        secure: true, 
+        sameSite: 'None', 
+        maxAge: 7 * 24 * 60 * 60 * 1000 
     })
 
-    // Send accessToken containing username and roles 
+    
     res.json({ accessToken })
 }
 
-// @desc Refresh
-// @route GET /auth/refresh
-// @access Public - because access token has expired
+
+
+
 const refresh = (req, res) => {
     const cookies = req.cookies
 
@@ -87,79 +134,19 @@ const refresh = (req, res) => {
     )
 }
 
-// @desc Logout
-// @route POST /auth/logout
-// @access Public - just to clear cookie if exists
+
+
+
 const logout = (req, res) => {
     const cookies = req.cookies
-    if (!cookies?.jwt) return res.sendStatus(204) //No content
+    if (!cookies?.jwt) return res.sendStatus(204) 
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true })
     res.json({ message: 'Cookie cleared' })
 }
 
-
-// @desc Create new user
-// @route POST /users
-// @access Private
-
-// Registration controller
-const register = "register"
-app.post('/register', upload.single('avatar'), async (req, res) => {
-    try {
-        const { firstName, lastName, username, email, phoneNumber, password } = req.body;
-
-        // Check if the username or email already exists
-        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-        if (existingUser) {
-            return res.status(400).json({ error: 'Username or email already exists' });
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create new user
-        const newUser = new User({
-            firstName,
-            lastName,
-            username,
-            email,
-            phoneNumber,
-            password: hashedPassword,
-            avatar: {
-                data: req.file.buffer,
-                contentType: req.file.mimetype
-            }
-        });
-
-        // Save user to database
-        await newUser.save();
-
-        // Generate access token
-        const accessToken = jwt.sign({ userId: newUser._id }, 'your_access_token_secret', { expiresIn: '15m' });
-
-        // Generate refresh token
-        const refreshToken = jwt.sign({ userId: newUser._id }, 'your_refresh_token_secret', { expiresIn: '7d' });
-
-        // Set refresh token as a secure cookie
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
-        });
-
-        // Send access token in the response body
-        res.status(201).json({ message: 'User registered successfully', accessToken });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-
-
 module.exports = {
     login,
     refresh,
-    logout, 
-    register
+    logout,
+    registerUser
 }

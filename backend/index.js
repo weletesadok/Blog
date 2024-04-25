@@ -10,13 +10,11 @@ const cors = require('cors')
 const corsOptions = require('./config/corsOptions')
 const connectDB = require('./config/dbConn')
 const mongoose = require('mongoose')
-const verifyJWT = require("./middleware/verifyJWT");
-
 const PORT = process.env.PORT || 3500
 
 console.log(process.env.NODE_ENV)
 
-connectDB()
+connectDB(process.env.MONGODB_URI)
 
 app.use(logger)
 
@@ -28,9 +26,22 @@ app.use(cookieParser())
 
 app.use('/', express.static(path.join(__dirname, 'public')))
 
+app.use('/', require('./routes/root'))
 app.use('/auth', require('./routes/authRoutes'))
 app.use('/users', require('./routes/userRoutes'))
-app.use('/blog', require('./routes/blogRoutes'))
+app.use('/blogs', require('./routes/blogRoutes'))
+
+
+app.all('*', (req, res) => {
+    res.status(404)
+    if (req.accepts('html')) {
+        res.sendFile(path.join(__dirname, 'views', '404.html'))
+    } else if (req.accepts('json')) {
+        res.json({ message: '404 Not Found' })
+    } else {
+        res.type('txt').send('404 Not Found')
+    }
+})
 
 app.use(errorHandler)
 

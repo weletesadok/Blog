@@ -1,19 +1,5 @@
 import { apiSlice } from "../../app/api/apiSlice"
-import { createSlice } from '@reduxjs/toolkit'
-
-const authSlice = createSlice({
-    name: 'auth',
-    initialState: { token: null },
-    reducers: {
-        setCredentials: (state, action) => {
-            const { accessToken } = action.payload
-            state.token = accessToken
-        },
-        logOut: (state, action) => {
-            state.token = null
-        },
-    }
-})
+import { logOut, setCredentials } from "./authSlice"
 
 export const authApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
@@ -68,14 +54,8 @@ export const authApiSlice = apiSlice.injectEndpoints({
     })
 })
 
-
-export const { setCredentials, logOut } = authSlice.actions
-
-export default authSlice.reducer
-
-export const selectCurrentToken = (state) => state.auth.token
-
 export const {
+    useRegisterMutation,
     useLoginMutation,
     useSendLogoutMutation,
     useRefreshMutation,
