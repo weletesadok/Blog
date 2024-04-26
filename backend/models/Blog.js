@@ -8,14 +8,23 @@ const blogPostSchema = new Schema(
     content: { type: String, required: true },
     author: { type: mongoose.Types.ObjectId, ref: "User", required: true },
     category: { type: String },
-    likes: { type: Number, default: 0 },
-    image: {type: String}
+    tags: [{ type: String }],
+    likes: [{ type: mongoose.Types.ObjectId, ref: "User", default: 0 }],
+    comments: [
+      {
+        user: {
+          type: mongoose.Types.ObjectId,
+          ref: "User",
+        },
+        comment: {
+          type: String,
+        },
+      },
+    ],
+    image: { type: String },
   },
   { timestamps: true }
 );
-
-
-blogPostSchema.index({ title: "text", content: "text" });
 
 const BlogPost = mongoose.model("BlogPost", blogPostSchema);
 
