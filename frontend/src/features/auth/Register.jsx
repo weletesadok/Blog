@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRegisterMutation } from './authApiSlice';
-import axios from 'axios'; // You may need to install axios
 import { useNavigate } from 'react-router-dom';
 
-const Register = () => {
+export default function Register (){
     const navigate = useNavigate()
 
     const [register, {
@@ -16,7 +15,7 @@ const Register = () => {
     useEffect(() => {
         if (isSuccess) {
             setFormData({})
-            navigate('/dash/notes')
+            navigate('/login')
         }
     }, [isSuccess, navigate])
 
@@ -64,8 +63,8 @@ const Register = () => {
     };
 
     return (
-        <section className="bg-white dark:bg-gray-900">
-            <div className="container flex items-center justify-center min-h-screen px-6 mx-auto">
+        <section>
+            <div className="container flex items-center justify-center min-h-screen px-6 mx-auto ">
                 <form className="w-full max-w-md" onSubmit={handleSubmit}>
                     <div className="flex justify-center mx-auto">
                         <img className="w-auto h-7 sm:h-8" src="https://merakiui.com/images/logo.svg" alt="" />
@@ -136,7 +135,7 @@ const Register = () => {
         
         <p className={`text-gray-400 ${formData.avatar && 'hidden'}`}>Choose avatar</p>
     {formData.avatar && (
-        <img src={formData.avatar} alt="avatar" className="w-30 h-30 rounded-full ml-2" />
+        <img src={formData.avatar} alt="avatar" className="w-15 h-15 rounded-full ml-2" />
     )}
     </label>
 
@@ -188,4 +187,3 @@ const Register = () => {
     );
 };
 
-export default Register;
