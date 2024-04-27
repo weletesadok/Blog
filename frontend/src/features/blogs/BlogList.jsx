@@ -26,7 +26,11 @@ const BlogsList = () => {
   if (isError) {
     content = <p>{error.error}</p>;
     if (error.status === "FETCH_ERROR") {
-      content = <p>Sorry the backend server is down right now.</p>;
+      content = (
+        <p className="text-red-500 font-bolder-[1rem]">
+          Sorry the backend server is down right now.
+        </p>
+      );
     }
   }
 
@@ -34,10 +38,17 @@ const BlogsList = () => {
     const { ids } = blogs;
 
     content = (
-      <div className="flex flex-col flex-wrap items-center justify-between">
-        {ids.map((id) => {
-          return <Blog blogId={id} key={id} />;
-        })}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {ids.map((id) => {
+            return <Blog blogId={id} key={id} />;
+          })}
+         {/* <div className="max-w-sm rounded overflow-hidden shadow-lg bg-white">
+            {ids.map((id) => {
+              return <Blog blogId={id} key={id} />;
+            })}
+          </div>*/}
+        </div>
       </div>
     );
   }

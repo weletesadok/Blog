@@ -109,6 +109,7 @@ const createBlogPost = async (req, res) => {
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
       image = result.secure_url;
+      console.log(image)
     }
 
     const blogPost = await BlogPost.create({

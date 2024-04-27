@@ -45,7 +45,7 @@ const Blog = ({ blogId }) => {
       console.log(e);
     }
   };
-useEffect(()=>{
+  useEffect(() => {
     if (isCommentError) {
       setErrMsg("error while commenting");
     } else if (isDelError) {
@@ -59,8 +59,15 @@ useEffect(()=>{
     } else if (isLikeSuccess) {
       setMessage("liked");
     }
-  }, [isCommentError, isDelError, isLikeError, isDelSuccess, isCommentSuccess, isLikeSuccess])
-  
+  }, [
+    isCommentError,
+    isDelError,
+    isLikeError,
+    isDelSuccess,
+    isCommentSuccess,
+    isLikeSuccess,
+  ]);
+
   const handleLike = async () => {
     try {
       const likeResponse = await likeBlog({ postId: blogId, userId: id });
@@ -91,52 +98,69 @@ useEffect(()=>{
 
   // const {data:blog, isError, isSuccess, isLoading, error} = useGetBlogQuery({postId:blogId});
   let content;
-  if(blog.author){
-    content = (<>
-        {errMsg && <h1 className="text-red-500">{errMsg}</h1>}
-        {message && <h1 className="text-red-500">{message}</h1>}
-        <div className="flex flex-col items-center justify-start bg-green-500 m-2 w-[75%]">
-          <div>
-            <img src={blog.image} alt="" />
+  if (blog.author) {
+    content = (
+      <>
+        <div className="max-w-sm rounded overflow-hidden card">
+          <img
+            className="w-full h-48 object-cover object-center"
+            src={blog.image}
+            alt="Image"
+          />
+          <div className="px-6 py-4">
+            <div className="font-bold text-xl mb-2">{blog.title}</div>
+            <p className="text-gray-700 text-base">{blog.content}</p>
+            <div className="flex items-center mt-4">
+              <Link to={`/blogs/user/${blog.author._id}`}>
+                <img
+                  className="w-10 h-10 rounded-full mr-4"
+                  src={blog.author.avatar}
+                  alt="Avatar"
+                />
+              </Link>
+              <div className="text-sm">
+                <p className="text-gray-900 leading-none">
+                  {blog.author.username}
+                </p>
+                <p className="text-gray-600">
+                  Published on {formatDate(blog.createdAt)}
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="p-1  w-full">by: {blog.author.username}</div>
-          <div className="p-1  w-full">title: {blog.title}</div>
-          <div className="p-1  w-full">content: {blog.content}</div>
-          <div className="p-1  w-full">category: {blog.category}</div>
-          <div className="p-1 w-full">{formatDate(blog.createdAt)}</div>
-          <div>
-            <Link to={`/blogs/user/${blog.author._id}`}>
-              other posts of {blog.author.username}
-            </Link>{" "}
-          </div>
-          <div className="w-full flex items-center justify-evenly">
-            {(username === blog.author.username || isAdmin) && <button onClick={handleEdit}>Edit</button>}
+
+          <div className="action-buttons">
             {(username === blog.author.username || isAdmin) && (
-              <button
-                onClick={handleDelete}
-                className="p-1 w-full rounded text-center"
-              >
-                Delete
+              <button onClick={handleEdit}>edit icon</button>
+            )}
+            {(username === blog.author.username || isAdmin) && (
+              <button onClick={handleDelete}>dekete icon</button>
+            )}
+            {username && (
+              <button type="button" onChange={handleLike}>
+                heart button
               </button>
             )}
-            {username && <input type="checkbox" onChange={handleLike} />}
-            {username && (
-              <>
-                <form onSubmit={handleComment}>
-                  <input
-                    type="text"
-                    onChange={(e) => setComment(e.target.value)}
-                    className="dark:text-black "
-                  />
-                  <input hidden type="submit" />
-                </form>
-              </>
-            )}
           </div>
+          {username && (
+            <>
+              <form
+                onSubmit={handleComment}
+                className="w-full bg-inherit m-0 p-0"
+              >
+                <input
+                  type="text"
+                  placeholder="Add a comment..."
+                  onChange={(e) => setComment(e.target.value)}
+                  // className="w-full bg-red"
+                />
+                <input hidden type="submit" />
+              </form>
+            </>
+          )}
         </div>
       </>
     );
-
   }
   // else if(isLoading){
   //   content = <PulseLoader color="green"/>
@@ -148,7 +172,7 @@ useEffect(()=>{
     content = null;
   }
 
-    return content;
+  return content;
 };
 
 const memoizedBlog = memo(Blog);

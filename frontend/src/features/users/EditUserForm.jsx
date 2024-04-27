@@ -1,179 +1,144 @@
 import { useState, useEffect } from "react";
 import { useUpdateUserMutation, useDeleteUserMutation } from "./usersApiSlice";
 import { useNavigate } from "react-router-dom";
-import { ROLES } from "../../config/roles";
-
-const USER_REGEX = /^[A-z]{3,20}$/;
-const PWD_REGEX = /^[A-z0-9!@#$%]{4,12}$/;
+import { PulseLoader } from "react-spinners";
 
 const EditUserForm = ({ user }) => {
+  const navigate = useNavigate();
   const [updateUser, { isLoading, isSuccess, isError, error }] =
     useUpdateUserMutation();
-
-  const [
-    deleteUser,
-    { isSuccess: isDelSuccess, isError: isDelError, error: delerror },
-  ] = useDeleteUserMutation();
-
-  const navigate = useNavigate();
-
-  const [username, setUsername] = useState(user.username);
-  const [validUsername, setValidUsername] = useState(false);
-  const [password, setPassword] = useState("");
-  const [validPassword, setValidPassword] = useState(false);
-  const [roles, setRoles] = useState(user.roles);
-  const [active, setActive] = useState(user.active);
-
-  useEffect(() => {
-    setValidUsername(USER_REGEX.test(username));
-  }, [username]);
-
-  useEffect(() => {
-    setValidPassword(PWD_REGEX.test(password));
-  }, [password]);
-
-  useEffect(() => {
-    console.log(isSuccess);
-    if (isSuccess || isDelSuccess) {
-      setUsername("");
-      setPassword("");
-      setRoles([]);
-      navigate("/users");
-    }
-  }, [isSuccess, isDelSuccess, navigate]);
-
-  const onUsernameChanged = (e) => setUsername(e.target.value);
-  const onPasswordChanged = (e) => setPassword(e.target.value);
-
-  const onRolesChanged = (e) => {
-    const values = Array.from(
-      e.target.selectedOptions,
-      (option) => option.value
-    );
-    setRoles(values);
-  };
-
-  const onActiveChanged = () => setActive((prev) => !prev);
-
-  const onSaveUserClicked = async (e) => {
-    if (password) {
-      await updateUser({ id: user.id, username, password, roles, active });
-    } else {
-      await updateUser({ id: user.id, username, roles, active });
-    }
-  };
-
-  const onDeleteUserClicked = async () => {
-    await deleteUser({ id: user.id });
-  };
-
-  const options = Object.values(ROLES).map((role) => {
-    return (
-      <option key={role} value={role}>
-        {" "}
-        {role}
-      </option>
-    );
+  const [message, setMessage] = useState("");
+  const [formData, setFormData] = useState({
+    id: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    zipCode: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+    avatar: null,
   });
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        id: user._id,
+        firstName: user.firstName ? user.firstName : "",
+        lastName: user.lastName ? user.lastName : "",
+        email: user.email,
+        phoneNumber: user.phoneNumber ? user.phoneNumber : "",
+        zipCode: user.zipCode ? user.zipCode : "",
+        username: user.username,
+        password: "",
+        confirmPassword: "",
+        avatar: user.avatar ? user.avatar : "",
+      });
+    }
+  }, [user]);
 
-  let canSave;
-  if (password) {
-    canSave =
-      [roles.length, validUsername, validPassword].every(Boolean) && !isLoading;
-  } else {
-    canSave = [roles.length, validUsername].every(Boolean) && !isLoading;
-  }
+  useEffect(() => {
+    if (isSuccess) {
+      setMessage("user updated succesfully");
+      navigate("/users");
+    } else if (isError) {
+      setMessage("error while updating user");
+    }
+  }, [isError, isSuccess]);
 
-  const errClass = isError || isDelError ? "errmsg" : "offscreen";
-  const validUserClass = !validUsername ? "form__input--incomplete" : "";
-  const validPwdClass =
-    password && !validPassword ? "form__input--incomplete" : "";
-  const validRolesClass = !Boolean(roles.length)
-    ? "form__input--incomplete"
-    : "";
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
 
-  const errContent = (error?.data?.message || delerror?.data?.message) ?? "";
+    reader.onload = () => {
+      setFormData({
+        ...formData,
+        avatar: reader.result,
+      });
+    };
+
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await updateUser(formData);
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const content = (
     <>
-      <p className={errClass}>{errContent}</p>
-
-      <form className="form" onSubmit={(e) => e.preventDefault()}>
-        <div className="form__title-row">
-          <h2>Edit User</h2>
-          <div className="form__action-buttons">
-            <button
-              className="icon-button"
-              title="Save"
-              onClick={onSaveUserClicked}
-              disabled={!canSave}
-            >
-              save
-            </button>
-            <button
-              className="icon-button"
-              title="Delete"
-              onClick={onDeleteUserClicked}
-            >
-              del
-            </button>
-          </div>
-        </div>
-        <label className="form__label" htmlFor="username">
-          Username: <span className="nowrap">[3-20 letters]</span>
-        </label>
+      <form className="w-full max-w-md" onSubmit={handleSubmit}>
         <input
-          className={`form__input ${validUserClass}`}
-          id="username"
-          name="username"
           type="text"
-          autoComplete="off"
-          value={username}
-          onChange={onUsernameChanged}
+          name="firstName"
+          value={formData.firstName}
+          onChange={handleChange}
+          placeholder="First Name"
         />
-
-        <label className="form__label" htmlFor="password">
-          Password: <span className="nowrap">[empty = no change]</span>{" "}
-          <span className="nowrap">[4-12 chars incl. !@#$%]</span>
-        </label>
         <input
-          className={`form__input ${validPwdClass}`}
-          id="password"
-          name="password"
-          type="password"
-          value={password}
-          onChange={onPasswordChanged}
+          type="text"
+          name="lastName"
+          value={formData.lastName}
+          onChange={handleChange}
+          placeholder="Last Name"
         />
+        <input
+          type="text"
+          name="phoneNumber"
+          value={formData.phoneNumber}
+          onChange={handleChange}
+          placeholder="Phone Number (e.g., 123-456-7890)"
+        />
+        <input
+          type="text"
+          name="zipCode"
+          value={formData.zipCode}
+          onChange={handleChange}
+          pattern="[0-9]{5}"
+          placeholder="Zip Code (e.g., 12345)"
+        />
+        <input
+          type="text"
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+          placeholder="Username"
+        />
+        <input id="dropzone-file" type="file" onChange={handleAvatarChange} />
 
-        <label
-          className="form__label form__checkbox-container"
-          htmlFor="user-active"
-        >
-          ACTIVE:
-          <input
-            className="form__checkbox"
-            id="user-active"
-            name="user-active"
-            type="checkbox"
-            checked={active}
-            onChange={onActiveChanged}
-          />
-        </label>
-
-        <label className="form__label" htmlFor="roles">
-          ASSIGNED ROLES:
-        </label>
-        <select
-          id="roles"
-          name="roles"
-          className={`form__select ${validRolesClass}`}
-          multiple={true}
-          size="3"
-          value={roles}
-          onChange={onRolesChanged}
-        >
-          {options}
-        </select>
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="Email address"
+        />
+        <input
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Password"
+        />
+        <input
+          type="password"
+          name="confirmPassword"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          placeholder="Confirm Password"
+        />
+        <button type="submit">update</button>
       </form>
     </>
   );

@@ -24,7 +24,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index path="public" element={<Public />} />
+        <Route index element={<Public />} />
         <Route path="login" element={<Login />} />
         <Route path="forget" element={<Forget />} />
         <Route path="register" element={<Register />} />
