@@ -2,6 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
+const crypto = require('crypto')
 
 const registerUser = async (req, res) => {
   try {
@@ -134,9 +135,171 @@ const logout = (req, res) => {
   res.json({ message: "Cookie cleared" });
 };
 
+const resetPassword = async (req, res) => {
+  try {
+    const { password, newPassword, email } = req.body;
+
+    if (!email) {
+      return res.status(401).send("email required");
+    }
+
+    if (!password || !newPassword) {
+      return res.status(400).json({ error: "You must enter a password." });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      return res.status(400).json({ error: "user not found." });
+    }
+
+    const isMatch = await bcrypt.compare(password, existingUser.password);
+
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ error: "Please enter your correct old password." });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(newPassword, salt);
+    existingUser.password = hash;
+    existingUser.save();
+
+    res.status(200).json({
+      success: true,
+      message:
+        "Password changed successfully. Please login with your new password.",
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: "Your request could not be processed. Please try again.",
+    });
+  }
+};
+const forgot = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res
+        .status(400)
+        .json({ error: "You must enter an email address." });
+    }
+
+    const existingUser = await User.findOne({ email });
+
+    if (!existingUser) {
+      return res
+        .status(400)
+        .send({ error: "No user found for this email address." });
+    }
+
+    const buffer = crypto.randomBytes(48);
+    const resetToken = buffer.toString("hex");
+    console.log(resetToken)
+
+    existingUser.resetPasswordToken = resetToken;
+    existingUser.resetPasswordExpires = Date.now() + 3600000;
+
+    existingUser.save();
+
+    //logic  send reset token to user with email
+
+    res.status(200).json({
+      success: true,
+      message: "Please check your email for the link to reset your password.",
+    });
+  } catch (error) {
+    res.status(400).json({
+      message: "Your request could not be processed. Please try again.",
+    });
+  }
+};
+const forgotPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ error: "You must enter a password." });
+    }
+
+    const resetUser = await User.findOne({
+      resetPasswordToken: req.params.token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!resetUser) {
+      return res.status(400).json({
+        error:
+          "Your token has expired. Please attempt to reset your password again.",
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+
+    resetUser.password = hash;
+    resetUser.resetPasswordToken = undefined;
+    resetUser.resetPasswordExpires = undefined;
+
+    resetUser.save();
+
+    res.status(200).json({
+      success: true,
+      message:
+        "Password changed successfully. Please login with your new password.",
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: "Your request could not be processed. Please try again.",
+    });
+  }
+};
+const profile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const foundUser = await User.findById(userId);
+    if (!foundUser) {
+      return res.status(400).json({ message: "user not found" });
+    }
+    res.json(foundUser);
+  } catch (e) {
+    res
+      .status(500)
+      .json({ message: "sorry you request could not be processed" });
+  }
+};
+const updateProfile = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { user } = req.body;
+    const foundUser = await User.findById(user._id);
+    if (!foundUser) {
+      return res.status(400).json({ message: "user not found" });
+    }
+    const updatedUser = await User.findByIdAndUpdate(user._id, user, {
+      new: true,
+    });
+    res.json({ updatedUser, message: "user updated successfully" });
+  } catch (e) {
+    res
+      .status(500)
+      .json({ message: "sorry you request could not be processed" });
+  }
+};
+const googleAuth = (req, res) => {
+  // logic to reset password
+};
+
 module.exports = {
   login,
   refresh,
   logout,
   registerUser,
+  forgotPassword,
+  resetPassword,
+  googleAuth,
+  forgot,
+  profile,
+  updateProfile,
 };

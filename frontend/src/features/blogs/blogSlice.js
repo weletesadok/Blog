@@ -69,11 +69,12 @@ export const blogsApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     commentBlog: builder.mutation({
-      query: ({ postId, userId, comment }) => ({
-        url: "/blogs/comment",
+      query: ({ postId, userId, comment, username }) => ({
+        url: `/blogs/comment/${username}`,
         method: "PATCH",
         body: { postId, userId, comment },
       }),
+      invalidatesTags: [{ type: "Blog", id: "LIST" }],
     }),
     getUserBlogs: builder.query({
       query: ({ userId }) => `/blogs/user/${userId}`,

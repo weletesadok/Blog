@@ -76,9 +76,8 @@ const UsersList = () => {
 
   const handleDelete = async (userId) => {
     try {
-       const ress = await deleteUser({ userId });
-            console.log(ress)
-
+      const ress = await deleteUser({ userId });
+      console.log(ress);
     } catch (error) {
       console.log(error);
     }
@@ -92,7 +91,7 @@ const UsersList = () => {
   };
   const handleDeactivate = async (userId) => {
     try {
-     await deactivateUser({ userId });
+      await deactivateUser({ userId });
     } catch (error) {
       console.log(error);
     }

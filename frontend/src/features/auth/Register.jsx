@@ -7,13 +7,20 @@ export default function Register() {
 
   const [register, { isLoading, isSuccess, isError, error }] =
     useRegisterMutation();
+    const [message, setMessage] = useState("")
 
   useEffect(() => {
     if (isSuccess) {
+      setMessage("successfully registered");
       setFormData({});
       navigate("/login");
+    }else if(isError){
+      setMessage(error.data.error)
     }
-  }, [isSuccess, navigate]);
+    return ()=>{
+      setMessage("")
+    }
+  }, [isSuccess, isError, navigate]);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -51,7 +58,6 @@ export default function Register() {
     e.preventDefault();
     try {
       const response = await register(formData);
-      console.log(response);
     } catch (error) {
       console.error(error);
     }
@@ -59,6 +65,7 @@ export default function Register() {
 
   return (
     <form className="w-full max-w-md" onSubmit={handleSubmit}>
+    {message && <p className="bg-white rounded p-2 text-red-500">{message}</p> }
       <input
         type="text"
         name="firstName"

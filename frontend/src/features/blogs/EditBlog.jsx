@@ -1,10 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  selectAllBlogs,
-  useGetBlogsQuery,
-  useUpdateBlogMutation,
-} from "./blogSlice";
+import { useGetBlogsQuery, useUpdateBlogMutation } from "./blogSlice";
 import useTitle from "./../../hooks/useTitle";
 
 const UpdateBlog = () => {
@@ -78,49 +74,41 @@ const UpdateBlog = () => {
     }
   };
   const content = (
-              <form onSubmit={handleSubmit}>
-                  
-                  <input
-                    type="text"
-                    name="title"
-                    id="title"
-                    placeholder="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                  />
-                  <textarea
-                    type="text"
-                    name="content"
-                    id="content"
-                    placeholder="content"
-                    value={formData.content}
-                    onChange={handleChange}
-                  />
-                  <input
-                    type="text"
-                    name="category"
-                    id="category"
-                    placeholder="category"
-                    value={formData.category}
-                    onChange={handleChange}
-                  />
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        name="title"
+        id="title"
+        placeholder="title"
+        value={formData.title}
+        onChange={handleChange}
+      />
+      <textarea
+        type="text"
+        name="content"
+        id="content"
+        placeholder="content"
+        value={formData.content}
+        onChange={handleChange}
+      />
+      <input
+        type="text"
+        name="category"
+        id="category"
+        placeholder="category"
+        value={formData.category}
+        onChange={handleChange}
+      />
 
-                  <input
-                    id="dropzone-file"
-                    type="file"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
+      <input
+        id="dropzone-file"
+        type="file"
+        onChange={handleImageChange}
+        className="hidden"
+      />
 
-                  
-
-                  <button
-                    type="submit"
-                  >
-                    Update
-                  </button>
-              </form>
-            
+      <button type="submit">Update</button>
+    </form>
   );
 
   return content;

@@ -44,6 +44,15 @@ const Login = () => {
   return (
     <>
       <form onSubmit={handleSubmit}>
+        <Link to="/register" className="text-white">
+          Don't have an account?{" "}
+          <span className=" focus:outline-none focus:underline hover:underline text-blue-500">
+            Sign up
+          </span>
+        </Link>{" "}
+        {errMsg && (
+          <p className="bg-white rounded p-2 text-red-500">{errMsg}</p>
+        )}
         <input
           type="text"
           name="username"
@@ -52,10 +61,9 @@ const Login = () => {
           value={formData.username}
           onChange={handleChange}
         />
-        <Link href="/forget" className="text-sm text-blue-400 hover:underline">
+        <Link to="/forget" className="text-sm text-blue-400 hover:underline">
           Forgot password?
         </Link>
-
         <input
           type="password"
           name="password"
@@ -74,20 +82,8 @@ const Login = () => {
         <span className="ml-2 text-gray-700 dark:text-gray-300">
           Trust This Device
         </span>
-
         <button type="submit">Sign in</button>
       </form>
-
-      <p className="mt-6 text-sm text-center text-gray-400">
-        Don't have an account yet?{" "}
-        <Link
-          to="/register"
-          className="text-blue-500 focus:outline-none focus:underline hover:underline"
-        >
-          Sign up
-        </Link>
-        .
-      </p>
     </>
   );
 };

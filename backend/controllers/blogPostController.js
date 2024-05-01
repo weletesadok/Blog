@@ -19,8 +19,10 @@ const getAllBlogPosts = async (req, res) => {
 const getSingleBlogPost = async (req, res) => {
   try {
     const { postId } = req.params;
-
-    const blogPost = await BlogPost.findById(postId).populate("author").lean().exec();
+    const blogPost = await BlogPost.findById(postId)
+      .populate("comments", "likes", "author")
+      .lean()
+      .exec();
 
     if (!blogPost) {
       return res.status(404).json({ message: "Blog post not found" });
@@ -109,7 +111,7 @@ const createBlogPost = async (req, res) => {
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
       image = result.secure_url;
-      console.log(image)
+      console.log(image);
     }
 
     const blogPost = await BlogPost.create({
@@ -199,7 +201,6 @@ const likeBlogPost = async (req, res) => {
 
     if (blogPost.likes.includes(userId)) {
       return res
-        .status(400)
         .json({ message: "You have already liked this post" });
     }
 
@@ -213,7 +214,9 @@ const likeBlogPost = async (req, res) => {
 };
 const commentBlogPost = async (req, res) => {
   try {
+    const username = req.params.id
     const { postId, userId, comment } = req.body;
+    console.log(username, comment)
 
     if (!postId || !userId || !comment) {
       return res
@@ -226,7 +229,7 @@ const commentBlogPost = async (req, res) => {
     if (!blogPost) {
       return res.status(404).json({ message: "Blog post not found" });
     }
-    const commentWithId = { user: userId, comment };
+    const commentWithId = { user: userId, comment,  createdAt: new Date()};
     blogPost.comments.push(commentWithId);
     const withCommetn = await blogPost.save();
     console.log(withCommetn);

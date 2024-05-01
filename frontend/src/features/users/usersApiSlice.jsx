@@ -66,6 +66,9 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         mehtod: "PATCH",
         body: { userId },
       }),
+            invalidatesTags: (result, error, arg) => [
+                { type: 'User', id: arg.id }
+            ]
     }),
     deactivateUser: builder.mutation({
       query: ({ userId }) => ({
@@ -73,6 +76,9 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         mehtod: "PATCH",
         body: { userId },
       }),
+            invalidatesTags: (result, error, arg) => [
+                { type: 'User', id: arg.id }
+            ]
     }),
   }),
 });

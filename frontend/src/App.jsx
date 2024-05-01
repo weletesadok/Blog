@@ -3,7 +3,6 @@ import { Layout } from "./components/Layout";
 import Login from "./features/auth/Login";
 import UsersList from "./features/users/UsersList";
 import EditUser from "./features/users/EditUser";
-import NewUserForm from "./features/users/NewUserForm";
 import Prefetch from "./features/auth/Prefetch";
 import PersistLogin from "./features/auth/PersistLogin";
 import RequireAuth from "./features/auth/RequireAuth";
@@ -17,6 +16,7 @@ import UserBlogs from "./features/blogs/UserBlogs";
 import EditBlog from "./features/blogs/EditBlog";
 import Forget from "./features/auth/Forget";
 import Public from "./components/Public";
+import BlogDetails from "./features/blogs/BlogDetails";
 
 function App() {
   useTitle("Bloging");
@@ -31,6 +31,7 @@ function App() {
         <Route element={<Prefetch />}>
           <Route path="blogs" element={<BlogList />} />
           <Route path="blogs/user/:userId" element={<UserBlogs />} />
+          <Route path="blogs/:id" element={<BlogDetails />} />
           <Route element={<PersistLogin />}>
             <Route
               element={<RequireAuth allowedRoles={[ROLES.User, ROLES.Admin]} />}
@@ -40,7 +41,6 @@ function App() {
             </Route>
             <Route element={<RequireAuth allowedRoles={[ROLES.Admin]} />}>
               <Route path="users/edit/:id" element={<EditUser />} />
-              <Route path="users/new" element={<NewUserForm />} />
               <Route path="users" element={<UsersList />} />
             </Route>
           </Route>

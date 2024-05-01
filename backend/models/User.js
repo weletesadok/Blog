@@ -16,6 +16,9 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
   },
+  googleId: {
+    type: String,
+  },
   phoneNumber: {
     type: String,
     required: true,
@@ -45,6 +48,8 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
   },
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date },
 });
 
 const User = mongoose.model("User", userSchema);

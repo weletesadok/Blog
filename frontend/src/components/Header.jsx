@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useSendLogoutMutation } from "../features/auth/authApiSlice";
 import useAuth from "../hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
+import { Home } from "@mui/icons-material";
 
 export default () => {
   const navigate = useNavigate();
@@ -21,37 +22,37 @@ export default () => {
   }, [isSuccess, navigate]);
   return (
     <>
-      <nav className="p-4 bg-secondary  fixed top-0 left-0 right-0 z-10 m-3 flex justify-between rounded-full">
-        <div className="border-3-solid-white px-2">
-          <Link to="/">My Logo</Link>
-        </div>
-        <div className="flex justify-between items-center gap-4 ">
-         
-
+      <nav className="px-8 py-4 bg-secondary w-[100vw] sticky top-0 left-0 right-0 z-10 flex justify-between flex-wrap">
+        <Link className="hover:text-blue-700" to="/">
+          <Home />
+        </Link>
+        <div className="flex justify-between items-center gap-4 flex-wrap ">
           <Link
             to="/blogs"
             className="text-white flex items-center mb-4 lg:mb-0"
           >
-            <span className="text-lg font-bold">Explore</span>
+            <span className="text-lg font-bold hover:text-blue-700">
+              Explore
+            </span>
           </Link>
           <Link
             to="/about"
-            className="text-white flex items-center mb-4 lg:mb-0"
+            className="text-white flex items-center mb-4 lg:mb-0 hover:text-blue-700 "
           >
             <span className="text-lg font-bold">About</span>
           </Link>
           {username && (
             <Link
               to="/blogs/new"
-              className="text-white flex items-center mb-4 lg:mb-0 font-bold text-lg font-bold"
+              className="text-white hover:text-blue-700 flex items-center mb-4 lg:mb-0 font-bold text-lg font-bold"
             >
-              write Blogs
+              write
             </Link>
           )}
           {isAdmin && (
             <Link
               to="/users"
-              className="text-white flex items-center mb-4 lg:mb-0 font-bold text-lg font-bold"
+              className="text-white hover:text-blue-700 flex items-center mb-4 lg:mb-0 font-bold text-lg font-bold"
             >
               Users
             </Link>
@@ -59,7 +60,7 @@ export default () => {
           {username && (
             <button
               onClick={handleLogout}
-              className="text-white flex items-center mb-4 lg:mb-0 font-bold text-lg font-bold"
+              className="hover:text-blue-700 text-white flex items-center mb-4 lg:mb-0 font-bold text-lg font-bold"
             >
               logout
             </button>
@@ -67,7 +68,7 @@ export default () => {
           {!username && (
             <Link
               to="/login"
-              className="text-white flex items-center mb-4 lg:mb-0 font-bold text-lg font-bold"
+              className="hover:text-blue-700 text-white flex items-center mb-4 lg:mb-0 font-bold text-lg font-bold"
             >
               Login
             </Link>

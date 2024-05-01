@@ -50,8 +50,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  width: 100%;
-  margin: 0.5rem;
 }
 
 .solid-border {
@@ -80,6 +78,7 @@ body {
 
 form {
   width: 35%;
+  min-width: 250px;
   margin: 1rem auto;
   background: black;
   padding: 1rem;
@@ -104,4 +103,13 @@ form button {
   background: var(--bg-1);
   margin: 0.5rem auto;
   padding: 0.5rem;
+}
+.like-button {
+  font-size: 1rem;
+  padding: 5px 10px;
+  color: #8d86c9;
+}
+.liked {
+  font-weight: bold;
+  color: #1565c0;
 }
