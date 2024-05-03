@@ -10,6 +10,7 @@
   "author": "Ayele Masresha",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.2.0",
     "cookie-parser": "^1.4.6",
@@ -19,6 +20,7 @@
     "express": "^4.19.2",
     "express-async-errors": "^3.1.1",
     "express-rate-limit": "^7.2.0",
+    "google-auth-library": "^9.9.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.2",
     "multer": "^1.4.5-lts.1",

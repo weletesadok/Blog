@@ -5,9 +5,9 @@ import { setCredentials } from "./authSlice";
 import { useLoginMutation } from "./authApiSlice";
 import usePersist from "../../hooks/usePersist";
 import useTitle from "../../hooks/useTitle";
-
 const Login = () => {
   useTitle("Login");
+
   const [persist, setPersist] = usePersist();
   const [errMsg, setErrMsg] = useState("");
   const navigate = useNavigate();
@@ -29,7 +29,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
     try {
       const { accessToken } = await login(formData).unwrap();
       dispatch(setCredentials({ accessToken }));

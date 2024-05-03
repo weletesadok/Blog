@@ -2,7 +2,10 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
-const crypto = require('crypto')
+const crypto = require("crypto");
+const { OAuth2Client } = require("google-auth-library");
+const oauth2Client = new OAuth2Client();
+const axios = require("axios");
 
 const registerUser = async (req, res) => {
   try {
@@ -196,7 +199,7 @@ const forgot = async (req, res) => {
 
     const buffer = crypto.randomBytes(48);
     const resetToken = buffer.toString("hex");
-    console.log(resetToken)
+    console.log(resetToken);
 
     existingUser.resetPasswordToken = resetToken;
     existingUser.resetPasswordExpires = Date.now() + 3600000;
@@ -287,9 +290,6 @@ const updateProfile = async (req, res) => {
       .json({ message: "sorry you request could not be processed" });
   }
 };
-const googleAuth = (req, res) => {
-  // logic to reset password
-};
 
 module.exports = {
   login,
@@ -298,7 +298,6 @@ module.exports = {
   registerUser,
   forgotPassword,
   resetPassword,
-  googleAuth,
   forgot,
   profile,
   updateProfile,

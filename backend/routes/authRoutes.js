@@ -10,7 +10,6 @@ router.route("/logout").post(authController.logout);
 router.route("/forget/:token").post(authController.forgotPassword);
 router.route("/forget").post(authController.forgot);
 router.route("/reset").post(authController.resetPassword);
-router.route("/google").post(authController.googleAuth);
 router.route("/me/:id").get(authController.profile);
 router.route("/me").patch(authController.updateProfile);
 
